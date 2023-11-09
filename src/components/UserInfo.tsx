@@ -14,7 +14,7 @@ const UserInfo = () => {
       <Input
         type="text"
         placeholder="Name"
-        {...register("personal.firstName", { required: true })}
+        {...register("personal.firstName")}
       />
       <Input
         type="text"

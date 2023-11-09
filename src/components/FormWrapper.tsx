@@ -19,16 +19,28 @@ import router from "next/router";
 const FormWrapper = ({ userData, currentStep } : any) => {
   const methods = useForm<TData>({
     defaultValues: userData || {}, // Initialize the form data with userData
+    mode: 'onChange',
   });
   const totalSteps = 3; // Set the total number of steps
+  const formIsValid = methods.formState.isValid
+  const isLastPage = currentStep === 3
 
 
   const goToNextStep = async () => {
     if (currentStep < totalSteps) {
+
      await methods.trigger(); // Trigger form validation before proceeding
-      if (methods.formState.isValid) {
+      if (formIsValid) {
+        if(!isLastPage){
+          onSubmitStep()
+        }
+      
         const nextStep = parseInt(currentStep) + 1;
         router.push(`/profile/${nextStep}`);
+        
+      }
+      else{
+        console.log('failed', methods.formState.errors)
       }
     }
   };
