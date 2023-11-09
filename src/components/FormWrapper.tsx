@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import Budget from "./Budget";
+import LivingWith from "./LivingWith";
 import Location from "./Location";
 import UserInfo from "./UserInfo";
 import { useState } from "react";
@@ -8,75 +8,86 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 
-import { TUserInfo } from "@/components/UserInfo";
-import { TCompany } from "@/components/Budget";
-import { TLocation } from "@/components/Location";
+import { TData } from "@/types/formTypes";
+import router from "next/router";
 
-export type TData = {
-  userInfo: TUserInfo;
-  companyInfo: TCompany;
-  locationInfo: TLocation;
-};
 
-const FormWrapper = () => {
-  const methods = useForm<TData>();
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4; // Set the total number of steps
 
-  const goToNextStep = () => {
+const FormWrapper = ({ userData, currentStep } : any) => {
+  const methods = useForm<TData>({
+    defaultValues: userData || {}, // Initialize the form data with userData
+  });
+  const totalSteps = 3; // Set the total number of steps
+
+
+  const goToNextStep = async () => {
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+     await methods.trigger(); // Trigger form validation before proceeding
+      if (methods.formState.isValid) {
+        const nextStep = parseInt(currentStep) + 1;
+        router.push(`/profile/${nextStep}`);
+      }
     }
   };
 
   const goToPreviousStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      const previousStep = parseInt(currentStep) - 1;
+      router.push(`/profile/${previousStep}`);
     }
   };
 
-  const onSubmit = (data : TData) => {
-    console.log(data); // You can submit the data to your server here.
-    fetch("https://jsonplaceholder.typicode.com/users/1", {
-      method: "PATCH",
-      body: JSON.stringify({
-        name: data.name,
-        username: data.userName,
-        email: data.email,
-        phone: data.phone,
-        address: {
-          street: data.Street,
-          suite: data.Suite,
-          city: data.City,
-          zipcode: data.Zipcode
-        },
-        company: {
-          name: data.company,
-          catchphrase: data.catchPhrase,
-          bs: data.BS
-        }
-      }),
+  const onSubmitStep = async () => {
+    const data = methods.getValues();
+    const requestOptions = {
+      method: "PUT",
+      body: JSON.stringify(data),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
+        "Access-Control-Allow-Origin": "*",
       },
-    })
-      .then((response) => response.json())
-      .then((json) => console.log(json));
+    };
+
+    const response = await fetch(`https://654b5c845b38a59f28eeef6b.mockapi.io/api/v1/tenants/tenantprofile/1
+    `, requestOptions);
+    if (response.ok) {
+     
+    } else {
+      console.error("Error updating user data on the server");
+      // Handle the error gracefully
+    }
   };
+
+  const {handleSubmit} = methods;
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)}>
-        {currentStep === 1 && (
+      <form onSubmit={handleSubmit(onSubmitStep)}>
+        {currentStep == 1 && (
           <Card className="p-6">
             <CardHeader>
-              <UserInfo />
+              <UserInfo  />
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-4">
+                <Button type="button" onClick={goToPreviousStep}>
+                  Previous  
+                </Button>
+                <Button type="button" onClick={goToNextStep}>
+                  Next
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {currentStep == 2 && (
+          <Card className="p-6">
+            <CardHeader>
+              <LivingWith  />
             </CardHeader>
             <CardContent>
               <div className="flex gap-4">
@@ -85,41 +96,25 @@ const FormWrapper = () => {
                 </Button>
                 <Button type="button" onClick={goToNextStep}>
                   Next
-                </Button>{" "}
+                </Button>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {currentStep === 2 && (
+        {currentStep == 3 && (
           <Card className="p-6">
             <CardHeader>
-              <Budget />
+              <Location  />
             </CardHeader>
             <CardContent>
               <div className="flex gap-4">
                 <Button type="button" onClick={goToPreviousStep}>
                   Previous
                 </Button>
-                <Button type="button" onClick={goToNextStep}>
-                  Next
-                </Button>{" "}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {currentStep === 3 && (
-          <Card className="p-6">
-            <CardHeader>
-              <Location />
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-4">
-                <Button type="button" onClick={goToPreviousStep}>
-                  Previous
+                <Button type="submit">
+                  Submit
                 </Button>
-                <Button type="submit">Submit</Button>{" "}
               </div>
             </CardContent>
           </Card>

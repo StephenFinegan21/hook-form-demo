@@ -1,24 +1,46 @@
-// components/Step1.js
 import React from "react";
-import { useFormContext } from "react-hook-form";
+import { useForm, useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-
-export type TUserInfo = {
-    name : string
-    userName : string
-    email : string
-    phone : string
-}
+import { TData } from "@/types/formTypes";
 
 const UserInfo = () => {
-  const { register } = useFormContext<TUserInfo>();
+  const { register  } = useFormContext<TData>();
+
+
 
   return (
+ 
     <div className="flex flex-col gap-2">
-      <Input type="text" placeholder="Name" {...register("name")} />
-      <Input type="text" placeholder="UserName" {...register("userName")} />
-      <Input type="email" placeholder="Email" {...register("email")} />
-      <Input type="phone" placeholder="Phone" {...register("phone")} />
+      <Input
+        type="text"
+        placeholder="Name"
+        {...register("personal.firstName", { required: true })}
+      />
+      <Input
+        type="text"
+        placeholder="Last Name"
+        {...register("personal.lastName")}
+      />
+      <Input
+        type="number"
+        placeholder="Age"
+        {...register("personal.age")}
+      />
+      <Input
+        type="text"
+        placeholder="Gender"
+        {...register("personal.gender")}
+      />
+      <Input
+        type="email"
+        placeholder="Email"
+        {...register("personal.email")}
+      />
+      <Input
+        type="text"
+        placeholder="Phone"
+        {...register("personal.phone")}
+      />
     </div>
   );
 };
